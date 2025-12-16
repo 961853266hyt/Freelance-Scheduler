@@ -57,10 +57,6 @@ export interface Task {
    * Optional numeric position for drag-and-drop (for p2p sync)
    */
   position?: number;
-  /**
-   * freelancer related
-   */
-  compensation?: Money;
 }
 
 /**
@@ -97,7 +93,18 @@ export interface AppSettings {
 
 export type SortOption = "dateCreated" | "dueDate" | "alphabetical" | "custom";
 export type ReduceMotionOption = "system" | "on" | "off";
+
+// ============================================
+// Artist Commission Related Types
+// ============================================
+
 export type Money = {
   amount: number;
-  currency: "CNY" | "USD";
+  currency: "CNY" | "USD" | "EUR" | "JPY";
 };
+
+export interface Commission extends Task {
+  compensation: Money;
+  estimatedWorkingHour?: number;
+  clientInfo?: { name: string; email?: string };
+}
