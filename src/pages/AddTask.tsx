@@ -27,7 +27,7 @@ const AddTask = () => {
     "sessionStorage",
   );
   const [commissionFee, setCommissionFee] = useStorageState<Money>(
-    { amount: 0, currency: "USD" }, // TODO: geli  add default setting
+    { amount: 100, currency: "CNY" }, // TODO: geli  add default setting
     "commissionFee",
     "sessionStorage",
   );
@@ -88,12 +88,12 @@ const AddTask = () => {
   };
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newAmount = event.target.value;
-    setCommissionFee((prev) => ({ ...prev, newAmount }));
+    const amount = parseFloat(event.target.value);
+    setCommissionFee((prev) => ({ ...prev, amount }));
   };
 
-  const handleCurrencyChange = (newCurrency: Money["currency"]) => {
-    setCommissionFee((prev) => ({ ...prev, newCurrency }));
+  const handleCurrencyChange = (currency: Money["currency"]) => {
+    setCommissionFee((prev) => ({ ...prev, currency }));
   };
 
   const handleDeadlineChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,7 +203,7 @@ const AddTask = () => {
             name="name"
             placeholder="Enter commission fee"
             autoComplete="off"
-            value={description}
+            value={commissionFee.amount}
             onChange={handleAmountChange}
             // TODO: geli error handle
             // error={descriptionError !== ""}
@@ -222,7 +222,7 @@ const AddTask = () => {
                   <InputAdornment position="end">
                     <StyledSelect
                       value={commissionFee.currency}
-                      onChange={(e: SelectChangeEvent<Money["currency"]>) =>
+                      onChange={(e: SelectChangeEvent<unknown>) =>
                         handleCurrencyChange(e.target.value as Money["currency"])
                       }
                     >
