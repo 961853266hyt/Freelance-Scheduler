@@ -61,7 +61,7 @@ export interface Task {
    * extends task to commission
    */
   type?: "task" | "commission";
-  compensation?: Money;
+  commissionFee?: Money;
   estimatedWorkingHour?: number;
   clientInfo?: { name: string; email?: string };
 }

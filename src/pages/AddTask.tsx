@@ -1,9 +1,9 @@
-import { Category, Task } from "../types/user";
+import { Category, Money, Task } from "../types/user";
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AddTaskButton, Container, StyledInput } from "../styles";
+import { AddTaskButton, Container, StyledInput, StyledSelect } from "../styles";
 import { AddTaskRounded, CancelRounded } from "@mui/icons-material";
-import { IconButton, InputAdornment, Tooltip } from "@mui/material";
+import { IconButton, InputAdornment, MenuItem, SelectChangeEvent, Tooltip } from "@mui/material";
 import { DESCRIPTION_MAX_LENGTH, TASK_NAME_MAX_LENGTH } from "../constants";
 import { ColorPicker, TopBar, CustomEmojiPicker } from "../components";
 import { UserContext } from "../contexts/UserContext";
@@ -26,6 +26,12 @@ const AddTask = () => {
     "description",
     "sessionStorage",
   );
+  const [commissionFee, setCommissionFee] = useStorageState<Money>(
+    { amount: 0, currency: "USD" }, // TODO: geli  add default setting
+    "commissionFee",
+    "sessionStorage",
+  );
+
   const [deadline, setDeadline] = useStorageState<string>("", "deadline", "sessionStorage");
   const [nameError, setNameError] = useState<string>("");
   const [descriptionError, setDescriptionError] = useState<string>("");
@@ -79,6 +85,15 @@ const AddTask = () => {
     } else {
       setDescriptionError("");
     }
+  };
+
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newAmount = event.target.value;
+    setCommissionFee((prev) => ({ ...prev, newAmount }));
+  };
+
+  const handleCurrencyChange = (newCurrency: Money["currency"]) => {
+    setCommissionFee((prev) => ({ ...prev, newCurrency }));
   };
 
   const handleDeadlineChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,6 +197,42 @@ const AddTask = () => {
                   ? `${description.length}/${DESCRIPTION_MAX_LENGTH}`
                   : descriptionError
             }
+          />
+          <StyledInput
+            label="Commission Fee"
+            name="name"
+            placeholder="Enter commission fee"
+            autoComplete="off"
+            value={description}
+            onChange={handleAmountChange}
+            // TODO: geli error handle
+            // error={descriptionError !== ""}
+            // helpercolor={descriptionError && ColorPalette.red}
+            // helperText={
+            //   description === ""
+            //     ? undefined
+            //     : !descriptionError
+            //       ? `${description.length}/${DESCRIPTION_MAX_LENGTH}`
+            //       : descriptionError
+            // }
+            slotProps={{
+              input: {
+                type: "number",
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <StyledSelect
+                      value={commissionFee.currency}
+                      onChange={(e: SelectChangeEvent<Money["currency"]>) =>
+                        handleCurrencyChange(e.target.value as Money["currency"])
+                      }
+                    >
+                      <MenuItem value="CNY">¥</MenuItem>
+                      <MenuItem value="USD">$</MenuItem>
+                    </StyledSelect>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           <StyledInput
             label="Task Deadline"
