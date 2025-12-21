@@ -6,6 +6,7 @@ import {
   DialogContent,
   IconButton,
   InputAdornment,
+  MenuItem,
   TextField,
   TextFieldProps,
   Tooltip,
@@ -14,12 +15,13 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { ColorPicker, CustomDialogTitle, CustomEmojiPicker } from "..";
 import { DESCRIPTION_MAX_LENGTH, TASK_NAME_MAX_LENGTH } from "../../constants";
 import { UserContext } from "../../contexts/UserContext";
-import { DialogBtn } from "../../styles";
+import { DialogBtn, StyledSelect } from "../../styles";
 import { Category, Task } from "../../types/user";
 import { formatDate, showToast, timeAgo } from "../../utils";
 import { useTheme } from "@emotion/react";
 import { ColorPalette } from "../../theme/themeConfig";
 import { CategorySelect } from "../CategorySelect";
+import set from "lodash/set";
 
 const DEFAULT_EDIT_TASK_SUBTITLE = "Edit the details of the task.";
 
@@ -75,10 +77,12 @@ export const EditTask = ({ open, task, onClose }: EditTaskProps) => {
     const { name, value } = event.target;
 
     // Update the editedTask state with the changed value.
-    setEditedTask((prevTask) => ({
-      ...(prevTask as Task),
-      [name]: value,
-    }));
+    setEditedTask((prevTask) => {
+      if (!prevTask) return prevTask;
+      const next = structuredClone(prevTask);
+      set(next, name, value);
+      return next;
+    });
   };
   // Event handler for saving the edited task.
   const handleSave = () => {
@@ -92,6 +96,7 @@ export const EditTask = ({ open, task, onClose }: EditTaskProps) => {
             color: editedTask.color,
             emoji: editedTask.emoji || undefined,
             description: editedTask.description || undefined,
+            commissionFee: editedTask.commissionFee || undefined,
             deadline: editedTask.deadline || undefined,
             category: editedTask.category || undefined,
             lastSave: new Date(),
@@ -207,6 +212,43 @@ export const EditTask = ({ open, task, onClose }: EditTaskProps) => {
                 : `${editedTask?.description?.length}/${DESCRIPTION_MAX_LENGTH}`
           }
         />
+        <StyledInput
+          label="Commission Fee"
+          name="commissionFee.amount"
+          placeholder="Enter commission fee"
+          autoComplete="off"
+          value={editedTask?.commissionFee?.amount || 0}
+          onChange={handleInputChange}
+          // TODO: geli error handle
+          // error={descriptionError !== ""}
+          // helpercolor={descriptionError && ColorPalette.red}
+          // helperText={
+          //   description === ""
+          //     ? undefined
+          //     : !descriptionError
+          //       ? `${description.length}/${DESCRIPTION_MAX_LENGTH}`
+          //       : descriptionError
+          // }
+          slotProps={{
+            input: {
+              type: "number",
+              endAdornment: (
+                <InputAdornment position="end">
+                  <StyledSelect
+                    name="commissionFee.currency"
+                    value={editedTask?.commissionFee?.currency || "CNY"} // TODO: geli  set default value
+                    // @ts-expect-error  ignore below error
+                    onChange={handleInputChange}
+                  >
+                    <MenuItem value="CNY">¥</MenuItem>
+                    <MenuItem value="USD">$</MenuItem>
+                  </StyledSelect>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
         <StyledInput
           label="Deadline date"
           name="deadline"
